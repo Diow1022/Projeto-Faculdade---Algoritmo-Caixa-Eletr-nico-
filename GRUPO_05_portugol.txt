@@ -1,0 +1,173 @@
+/*
+ * ATIVIDADE 2 - SISTEMA DE CAIXA ELETRÔNICO
+
+ * Integrantes Grupo 5: Christian Badolato Santos/RGM: 47224011, Davi Barros Correia/RGM: 47204885,
+ * Guilherme Pereira Ferreira da Silva/RGM: 47228903, Jonatas do Nascimento Lima/RGM: 46929720,
+ * Matheus Pedrosa dos Reis/RGM: 46784721, Pablo Orlando Bizari Di Sisto/RGM: 46695737,
+ * Vithor Hugo Moreno de Carvalho/RGM: 46761926 
+
+ * OBJETIVO:
+ *   Ler o valor de um saque, validar e calcular a menor quantidade de
+ *   cédulas (100, 50, 20, 10, 5 e 2) e moedas de 1, exibindo apenas as notas
+ *   cuja quantidade seja maior que zero.
+ *
+ * SEQUÊNCIA LÓGICA:
+ *   1. Declarar as variáveis
+ *   2. Ler o valor do saque
+ *   3. Validar: valor positivo, múltiplo da menor cédula e menor ou
+ *      igual ao saldo disponível
+ *   4. Calcular as notas de forma encadeada (divisão inteira e módulo)
+ *   5. Exibir o resultado (apenas notas com quantidade maior que zero)
+ *   6. Caso contrário, exibir mensagem de erro apropriada
+ */
+
+programa {
+
+  funcao inicio() {
+
+    // ---------------------------------------------------------
+    // PASSO 1: DECLARAÇÃO DE VARIÁVEIS
+    // ---------------------------------------------------------
+    inteiro saldo = 1000   // saldo disponível na conta (valor fixo para o teste)
+    inteiro menorMoeda = 1  // menor moeda disponível no caixa
+    inteiro saque          // valor que o usuário deseja sacar
+    inteiro resto          // valor que ainda falta distribuir em notas
+
+    // contadores: quantidade de cada tipo de cédula/moeda
+    inteiro n100, n50, n20, n10, n5, n2, m1
+
+    // ---------------------------------------------------------
+    // PASSO 2: LEITURA DO VALOR DO SAQUE
+    // ---------------------------------------------------------
+    escreva("Digite o valor do saque: ")
+    leia(saque)
+
+    // ---------------------------------------------------------
+    // PASSO 3: VALIDAÇÃO DOS DADOS
+    // 3.1 O valor precisa ser maior que zero
+    // 3.2 O valor precisa ser múltiplo da menor cédula/moeda (saque % menorMoeda)
+    //     Como existem cédulas de 2 e moeda de 1, a menor é 1 e todo valor
+    //     inteiro positivo é múltiplo dela, ou seja, pode ser pago.
+    // 3.3 O valor precisa ser menor ou igual ao saldo disponível
+    // ---------------------------------------------------------
+    se (saque <= 0) {
+
+      // Valor zero ou negativo não é um saque possível
+      escreva("Erro: valor inválido. Digite um valor maior que zero.\n")
+
+    } senao se (saque % menorMoeda != 0) {
+
+      // Valor que não pode ser pago exatamente com as cédulas e moedas disponíveis
+      escreva("Erro: o valor deve ser múltiplo de ", menorMoeda, ".\n")
+
+    } senao se (saque > saldo) {
+
+      // Valor maior que o saldo disponível
+      escreva("Erro: saldo insuficiente. Saldo disponível: R$ ", saldo, "\n")
+
+    } senao {
+
+      // -------------------------------------------------------
+      // PASSO 4: CÁLCULO ENCADEADO DAS NOTAS
+      //
+      // Objetivo: entregar o MENOR número de notas possível. Por isso
+      // começamos pela nota maior (100) e seguimos até a moeda de 1.
+      //
+      // Para cada nota usamos sempre o mesmo par de linhas:
+      //   quantidade = resto / nota   -> DIVISÃO INTEIRA: quantas notas
+      //                                  cabem no valor que falta pagar
+      //   resto = resto % nota        -> MÓDULO: o que sobrou depois de
+      //                                  tirar essas notas
+      //
+      // O "resto" de uma nota vira o valor da próxima nota. É por isso
+      // que o cálculo é chamado de "encadeado".
+      //
+      // Exemplo com saque = 285:
+      //   285 / 100 = 2 notas   e   285 % 100 = 85  (sobraram 85)
+      //    85 /  50 = 1 nota    e    85 %  50 = 35  (sobraram 35)
+      //    35 /  20 = 1 nota    e    35 %  20 = 15  (sobraram 15)
+      //    15 /  10 = 1 nota    e    15 %  10 =  5  (sobraram 5)
+      //     5 /   5 = 1 nota    e     5 %   5 =  0  (nada sobrou)
+      // -------------------------------------------------------
+      resto = saque            // começa com o valor total a ser pago
+
+      // Notas de 100
+      n100 = resto / 100       // quantas notas de 100 cabem em "resto"
+      resto = resto % 100      // o que sobrou para as notas menores
+
+      // Notas de 50
+      n50 = resto / 50         // quantas notas de 50 cabem no que sobrou
+      resto = resto % 50       // atualiza o que ainda falta pagar
+
+      // Notas de 20
+      n20 = resto / 20
+      resto = resto % 20
+
+      // Notas de 10
+      n10 = resto / 10
+      resto = resto % 10
+
+      // Notas de 5
+      n5 = resto / 5
+      resto = resto % 5
+
+      // Notas de 2
+      n2 = resto / 2
+      resto = resto % 2
+
+      // Moedas de 1: tudo o que sobrou é pago com moedas de 1
+      m1 = resto / 1
+      resto = resto % 1        // resultado sempre 0: não falta pagar nada
+
+      // -------------------------------------------------------
+      // PASSO 5: EXIBIÇÃO DO RESULTADO
+      //
+      // Mostra na tela somente as notas que foram realmente entregues,
+      // ou seja, com quantidade maior que zero (como em um recibo).
+      //
+      // Cada nota tem o seu próprio "se" independente (não usamos
+      // "senao se"), pois TODAS as notas precisam ser verificadas.
+      //
+      // Como ler o comando escreva(n100, " nota(s) de 100\n"):
+      //   n100               -> mostra o número guardado na variável
+      //   " nota(s) de 100"  -> texto exibido logo depois do número
+      //   \n                 -> pula para a linha de baixo
+      //
+      // Exemplo com saque = 95 (n50 = 1, n20 = 2, n5 = 1; o resto é 0):
+      //   1 nota(s) de 50
+      //   2 nota(s) de 20
+      //   1 nota(s) de 5
+      // -------------------------------------------------------
+      escreva("Notas entregues:\n")
+
+      // Só mostra se existir pelo menos 1 nota de 100
+      se (n100 > 0) {
+        escreva(n100, " nota(s) de 100\n")
+      }
+      // Só mostra se existir pelo menos 1 nota de 50
+      se (n50 > 0) {
+        escreva(n50, " nota(s) de 50\n")
+      }
+      // Só mostra se existir pelo menos 1 nota de 20
+      se (n20 > 0) {
+        escreva(n20, " nota(s) de 20\n")
+      }
+      // Só mostra se existir pelo menos 1 nota de 10
+      se (n10 > 0) {
+        escreva(n10, " nota(s) de 10\n")
+      }
+      // Só mostra se existir pelo menos 1 nota de 5
+      se (n5 > 0) {
+        escreva(n5, " nota(s) de 5\n")
+      }
+      // Só mostra se existir pelo menos 1 nota de 2
+      se (n2 > 0) {
+        escreva(n2, " nota(s) de 2\n")
+      }
+      // Só mostra se existir pelo menos 1 moeda de 1
+      se (m1 > 0) {
+        escreva(m1, " moeda(s) de 1\n")
+      }
+    }
+  }
+}
